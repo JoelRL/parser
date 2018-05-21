@@ -6,11 +6,17 @@ Parser v1 Documentation:
 Commands:
 
 PRINT - Prints numbers, strings, and variables.
+
 INPUT - Recieves input from user and sets variable according to input.
+
 EXIT - Ends program correctly.
+
 INT - Creates an integer variable.
+
 SET - Sets variable value.
+
 ADD - Adds an amount to a variable.
+
 IF - If conditional statment.
 
 Commands examples:
