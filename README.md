@@ -29,7 +29,7 @@ Prints out Hello! to the screen.
 	print(12);
 Prints out 12 to the screen.
 
-	print(":nl");
+	print("nl");
 Prints a new line on the screen.
 
 INPUT:
