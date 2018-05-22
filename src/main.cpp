@@ -1,3 +1,6 @@
+// AUTHOR: JOEL R. L.
+// 2018
+
 #include "operations.h"
 
 std::vector<std::string> commands;
@@ -16,7 +19,7 @@ int main(int argc, char* argv[])
 	system("cls");
 	
 	// print welcome message
-	std::cout << "Welcome to Parser v1. Please type file path" << std::endl << std::endl << "/";
+	std::cout << "Welcome to Parser v1 by Joel R.L.. Please type file path to .pars file " << std::endl << std::endl << "/";
 	
 	// char to store filepath
 	char filePath[256];
@@ -27,16 +30,23 @@ int main(int argc, char* argv[])
 	// bool value to check if file exists or not
 	bool isFile;
 	
+	std::string filePathS(filePath);
+	
+	if (filePathS.find(".") > 100000)
+	{
+		filePathS = filePathS + ".pars";
+	}
+	
 	// attempt to open file
-	std::ifstream infile(filePath);
+	std::ifstream infile(filePathS);
 	
 	// check if file exists
 	isFile = infile.good();
 	
 	// if file doesnt exist terminate program, if it does continue on
-	if (!isFile) 
+	if (!isFile)
 	{
-		std::cout << "File does not exist. Quitting program because looping back is too hard." << std::endl;
+		std::cout << std::endl << "File does not exist. Quitting program because looping back is too hard." << std::endl;
 		
 		system("pause");
 		
@@ -47,7 +57,7 @@ int main(int argc, char* argv[])
 	std::ifstream file;
 	
 	// open the file in the filepath
-	file.open(filePath,std::ifstream::in);
+	file.open(filePathS,std::ifstream::in);
 	
 	if (debug)
 	{
@@ -156,7 +166,7 @@ int main(int argc, char* argv[])
 	
 	std::cout << std::endl;
 	
-	// std::cout << std::endl;
+	std::cout << std::endl;
 	system("pause");
 	
 	return 0;
