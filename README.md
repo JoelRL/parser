@@ -1,5 +1,5 @@
 # parser
-A simple bare bones language that piggy back rides off of C++. It basically loads .txt files with this type of code.
+A simple bare bones language that piggy back rides off of C++. It laods & runs .pars files.
 
 Parser v1 Documentation:
 
