@@ -7,8 +7,6 @@ std::vector<int> world_variablesValues;
 
 void initilizeCommands(std::vector<std::string> *cmdT);
 
-int count_characters(char c,std::string s);
-
 bool debug = false;
 
 int main(int argc, char* argv[])
@@ -99,7 +97,7 @@ int main(int argc, char* argv[])
 	// fetch file operations to execute
 	for (int k=0; k < fileLines.size(); k++)
 	{
-		operations.push_back(getFileOperations(fileLines[k],commands,length));
+		operations.push_back(getFileOperations(fileLines[k],commands,length,fileLines));
 	}
 	
 	if (debug)
@@ -118,13 +116,28 @@ int main(int argc, char* argv[])
 	// print start program message
 	std::cout << std::endl << "-- Start program--" << std::endl << std::endl;
 	
+	int endedSucc = 0;
+	
 	for (int i=0; i < operations.size(); i++)
 	{
-		if (executeOperations(operations[i],&world_variablesNames,&world_variablesValues,length) == 1)
+		
+		int result = executeOperations(operations[i],&world_variablesNames,&world_variablesValues,length);
+		
+		if (result == 1)
 		{
 			std::cout << std::endl << std::endl << "--Ended program successfully!--";
+			endedSucc = 1;
 			break;
 		}
+		else if(result != -1)
+		{
+			i = result;
+		}
+	}
+	
+	if (endedSucc == 0)
+	{
+		std::cout << std::endl << std::endl << "--Auto ended program: Missing exit command!--";
 	}
 	
 	// execute operations. if it returns a 1, it ended properly, if anything else, something went wrong
@@ -142,8 +155,8 @@ int main(int argc, char* argv[])
 	}
 	
 	std::cout << std::endl;
-	std::cout << std::endl;
 	
+	// std::cout << std::endl;
 	system("pause");
 	
 	return 0;
@@ -152,20 +165,11 @@ int main(int argc, char* argv[])
 void initilizeCommands(std::vector<std::string> *cmdT)
 {
 	cmdT->push_back("if");
+	cmdT->push_back("while");
 	cmdT->push_back("print");
 	cmdT->push_back("input");
 	cmdT->push_back("int");
 	cmdT->push_back("set");
 	cmdT->push_back("add");
 	cmdT->push_back("exit");
-}
-
-int count_characters(char c, std::string s)
-{
-	int count = 0;
-	
-	for (int i=0; i < s.size(); i++)
-		if (s[i] == c) count++;
-	
-	return count;
 }

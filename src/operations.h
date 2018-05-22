@@ -7,7 +7,7 @@
 #include <string>
 #include <typeinfo>
 
-std::string getFileOperations(std::string fileLine, std::vector<std::string> commands, int sizeOfFile);
+std::string getFileOperations(std::string fileLine, std::vector<std::string> commands, int sizeOfFile, std::vector<std::string> fileLines);
 	//getFileOperations - Fetches file operations and adds them in a vector (*list)
 	//@param fileLine - Line to be processed
 	//@param commands - Vector full of acceptable commands the interpreter recognizes

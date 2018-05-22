@@ -2,7 +2,7 @@
 
 const std::string compareCommands[4] = {"==","<",">","~="};
 
-std::string getFileOperations(std::string fileLine, std::vector<std::string> commands, int sizeOfFile)
+std::string getFileOperations(std::string fileLine, std::vector<std::string> commands, int sizeOfFile, std::vector<std::string> fileLines)
 {
 	
 	std::string returnCommand;
@@ -13,6 +13,9 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 		
 		if (found < sizeOfFile)
 		{
+			
+			// INPUT //
+			
 			if (commands[i] == "print")
 			{
 				std::size_t s1 = fileLine.find("(");
@@ -55,6 +58,9 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 					break;
 				}
 			}
+			
+			// INPUT //
+			
 			else if(commands[i] == "input")
 			{
 				std::size_t s1 = fileLine.find("(");
@@ -76,11 +82,17 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 					}
 				}
 			}
+			
+			// EXIT //
+			
 			else if(commands[i] == "exit")
 			{
 				returnCommand = "exit";
 				break;
 			}
+			
+			// INT, ADD, and SET //
+			
 			else if(commands[i] == "int" || commands[i] == "add" || commands[i] == "set")
 			{
 				std::size_t s1 = fileLine.find("(");
@@ -102,7 +114,10 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 					}
 				}
 			}
-			else if(commands[i] == "if")
+			
+			// IF STATMENT //
+			
+			else if(commands[i] == "if" || commands[i] == "while")
 			{
 				std::size_t s1 = fileLine.find("(");
 				
@@ -118,7 +133,7 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 					
 					if (s2 < sizeOfFile)
 					{
-						parameter = fileLine.substr(s1+1,s2-4);
+						parameter = fileLine.substr(s1+1,s2-(s1+1));
 						
 						for (int j = 0; j < (sizeof(compareCommands)/sizeof(*compareCommands)); j++)
 						{
@@ -174,35 +189,51 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 				
 				std::string action;
 				
+				std::string outputCommand;
+				
 				if (semi < sizeOfFile)
 				{
-					
-					std::string lastBit = fileLine.substr(semi,fileLine.size());
-					
-					std::size_t good = lastBit.find("(");
-					
-					std::size_t max = lastBit.find(")") + 1;
-					
-					for (int j = 0; j < max; j++)
+					if (fileLine.at(fileLine.size()-1) == ';')
 					{
-						if (j < good)
+						std::string lastBit = fileLine.substr(semi,fileLine.size());
+					
+						std::size_t good = lastBit.find("(");
+						
+						std::size_t max = lastBit.find(")") + 1;
+						
+						for (int j = 0; j < max; j++)
 						{
-							if (lastBit.at(j) != ' ' && lastBit.at(j) != ':' && lastBit.at(j) != ';')
+							if (j < good)
 							{
-								action += lastBit.at(j);
+								if (lastBit.at(j) != ' ' && lastBit.at(j) != ':' && lastBit.at(j) != ';')
+								{
+									action += lastBit.at(j);
+								}
+							}
+							else
+							{
+								if (lastBit.at(j) != ';')
+								{
+									action += lastBit.at(j);
+								}
 							}
 						}
-						else
+						
+						outputCommand = getFileOperations(action,commands,sizeOfFile,fileLines);
+					}
+					else
+					{
+						for (int j = 0; j < fileLines.size(); j++)
 						{
-							if (lastBit.at(j) != ';')
+							if (fileLines[j].at(0) == ':')
 							{
-								action += lastBit.at(j);
+								action = "jumpL" + std::to_string(j);
 							}
 						}
+						
+						outputCommand = action;
 					}
 				}
-				
-				std::string outputCommand = getFileOperations(action,commands,sizeOfFile);
 				
 				std::string finalCommand = commands[i] + v1 + "(" + compS + ")" + v2 + ":" + outputCommand;
 				
@@ -210,6 +241,10 @@ std::string getFileOperations(std::string fileLine, std::vector<std::string> com
 				
 				break;
 			}
+		}
+		else if(fileLine[i] == ':')
+		{
+			returnCommand = "endConditional";
 		}
 	}
 	
@@ -237,7 +272,7 @@ int executeOperations(std::string op, std::vector<std::string>* varsN, std::vect
 		executeOperations(setCommand,varsN,varsV,sizeOfFile);
 	}
 	else if (op.substr(0,3) == "int")
-	{
+	{	
 		integerCreation(op, varsN, varsV, sizeOfFile);
 	}
 	else if (op.substr(0,3) == "add" || op.substr(0,3) == "set")
@@ -250,11 +285,30 @@ int executeOperations(std::string op, std::vector<std::string>* varsN, std::vect
 			
 			std::string num = op.substr(comma+1,op.size());
 			
-			int varN = atoi(num.c_str());
-			
-			int id = 0;
+			int id1 = -1;
 			
 			int max = varsN->size();
+			
+			int varN;
+			
+			for (int k=0; k < max; k++)
+			{
+				if ((*varsN).at(k) == num)
+				{
+					id1 = k;
+				}
+			}
+			
+			if (id1 == -1)
+			{
+				varN = atoi(num.c_str());
+			}
+			else
+			{
+				varN = (*varsV).at(id1);
+			}
+			
+			int id = 0;
 			
 			for (int k=0; k < max; k++)
 			{
@@ -274,12 +328,21 @@ int executeOperations(std::string op, std::vector<std::string>* varsN, std::vect
 			}
 		}
 	}
-	else if (op.substr(0,2) == "if")
+	else if (op.substr(0,2) == "if" || op.substr(0,5) == "while")
 	{
 		
 		std::size_t paran1 = op.find("(");
 		
-		std::string v1 = op.substr(2,paran1-2);
+		std::string v1;
+		
+		if (op.substr(0,2) == "if")
+		{
+			v1 = op.substr(2,paran1-2);
+		}
+		else if (op.substr(0,5) == "while")
+		{
+			v1 = op.substr(5,paran1-5);
+		}
 		
 		std::size_t paran2 = op.find(")");
 		
@@ -335,32 +398,57 @@ int executeOperations(std::string op, std::vector<std::string>* varsN, std::vect
 		
 		int var2 = atoi(v2.c_str());
 		
+		bool run = false;
+		
 		if (comp == 0)
 		{
 			if (var1 == var2)
 			{
-				executeOperations(action,varsN,varsV,sizeOfFile);
+				run = true;
 			}
 		}
 		else if(comp == 1)
 		{
 			if (var1 < var2)
 			{
-				executeOperations(action,varsN,varsV,sizeOfFile);
+				run = true;
 			}
 		}
 		else if(comp == 2)
 		{
 			if (var1 > var2)
 			{
-				executeOperations(action,varsN,varsV,sizeOfFile);
+				run = true;
 			}
 		}
 		else if(comp == 3)
 		{
 			if (var1 != var2)
 			{
-				executeOperations(action,varsN,varsV,sizeOfFile);
+				run = true;
+			}
+		}
+		
+		if (op.substr(0,2) == "if")
+		{
+			if (run)
+			{
+				if (action.substr(0,5) != "jumpL")
+				{
+					executeOperations(action,varsN,varsV,sizeOfFile);
+				}
+			}
+			else
+			{
+				if (action.substr(0,5) == "jumpL")
+				{
+					
+					std::string line1 = action.substr(5,action.size());
+					
+					int numL = atoi(line1.c_str());
+					
+					return numL;
+				}
 			}
 		}
 	}
@@ -368,14 +456,14 @@ int executeOperations(std::string op, std::vector<std::string>* varsN, std::vect
 	{
 		return 1;
 	}
-	return 0;
+	return -1;
 }
 
 // OPERATION FUNCTIONS //
 
 void print(std::string op, std::vector<std::string>* varsN, std::vector<int>* varsV)
 {
-	if (op.substr(5,op.size()-6) == ":nl")
+	if (op.substr(5,op.size()-6) == "nl")
 	{
 		std::cout << std::endl;
 	}
@@ -416,7 +504,28 @@ void integerCreation(std::string op, std::vector<std::string>* varsN, std::vecto
 		std::string var = op.substr(3,comma-3);
 		std::string num = op.substr(comma+1,op.size());
 		
-		int varN = atoi(num.c_str());
+		int id1 = -1;
+			
+		int max = varsN->size();
+		
+		int varN;
+		
+		for (int k=0; k < max; k++)
+		{
+			if ((*varsN).at(k) == num)
+			{
+				id1 = k;
+			}
+		}
+		
+		if (id1 == -1)
+		{
+			varN = atoi(num.c_str());
+		}
+		else
+		{
+			varN = (*varsV).at(id1);
+		}
 		
 		varsN->push_back(var);
 		varsV->push_back(varN);
